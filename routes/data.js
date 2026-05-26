@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const carData = require('../data/cars.json')
+const NodeCache = require( "node-cache" );
+const myCache = new NodeCache();
 
 // Add a 5 second delay to simulate a slow data fetch
 async function getDataSlowly(){
@@ -10,8 +12,18 @@ async function getDataSlowly(){
 }
 
 router.get('/', async function(req, res, next) {
-  const cars = await getDataSlowly();
-  res.set('Cache-Control', 'public, max-age=30000')
+  // TODO: uncomment this once server-side caching is good
+  // res.set('Cache-Control', 'public, max-age=30000')
+
+  let cars = myCache.get("cars")
+  if(!cars){
+    cars = await getDataSlowly();
+    // TODO: make TTL 24 hours
+    myCache.set("cars", cars, 30000)
+  }
+
+
+
   res.json({data: cars });
 });
 
