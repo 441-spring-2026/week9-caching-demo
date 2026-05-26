@@ -11,6 +11,7 @@ async function getDataSlowly(){
 
 router.get('/', async function(req, res, next) {
   const cars = await getDataSlowly();
+  res.set('Cache-Control', 'public, max-age=30000')
   res.json({data: cars });
 });
 
